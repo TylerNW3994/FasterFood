@@ -40,7 +40,6 @@ public class StoveCounter : BaseCounter {
                     break;
                 case State.Burned:
                     break;
-
             }
         }
     } 

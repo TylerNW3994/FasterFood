@@ -4,7 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class StoveCounter : BaseCounter {
-    private enum State {
+    public event EventHandler<OnCookingStateChangedEventArgs> CookingStateChanged;
+
+    public class OnCookingStateChangedEventArgs : EventArgs {
+        public State state;
+    }
+
+    public enum State {
         Idle,
         Cooking,
         Cooked,
@@ -40,6 +46,10 @@ public class StoveCounter : BaseCounter {
                     cookingRecipeSO = GetCookingRecipeSO(cookingRecipeSO.output);
 
                     state = cookingRecipeSO ? State.Cooking : State.Burned;
+
+                    CookingStateChanged?.Invoke(this, new OnCookingStateChangedEventArgs {
+                        state = state
+                    });
                     break;
                 case State.Burned:
                     break;
@@ -53,6 +63,9 @@ public class StoveCounter : BaseCounter {
                 cookingTime = 0f;
                 player.GetKitchenObject().SetKitchenObjectParent(this);
                 state = State.Cooking;
+                CookingStateChanged?.Invoke(this, new OnCookingStateChangedEventArgs {
+                    state = state
+                });
 
                 if (HasRecipe(GetKitchenObject().GetKitchenObjectSO()) == false) {
                     return;
@@ -67,6 +80,9 @@ public class StoveCounter : BaseCounter {
         } else {
             if (!player.HasKitchenObject()) {
                 state = State.Idle;
+                CookingStateChanged?.Invoke(this, new OnCookingStateChangedEventArgs {
+                    state = state
+                });
                 GetKitchenObject().SetKitchenObjectParent(player);
                 cookingRecipeSO = null;
             }

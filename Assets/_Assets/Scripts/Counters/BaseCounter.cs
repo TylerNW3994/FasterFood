@@ -1,14 +1,12 @@
 using System;
 using UnityEngine;
 
-public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
-    public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
-    public class OnProgressChangedEventArgs : EventArgs {
-        public float progressNormalized;
-    }
+public class BaseCounter : MonoBehaviour, IKitchenObjectParent, IHasProgress {
+    public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged;
+
     public event EventHandler OnCut;
 
-    protected void InvokeOnProgressChanged(OnProgressChangedEventArgs args) {
+    protected void InvokeOnProgressChanged(IHasProgress.OnProgressChangedEventArgs args) {
         OnProgressChanged?.Invoke(this, args);
     }
     protected void InvokeOnCut() {

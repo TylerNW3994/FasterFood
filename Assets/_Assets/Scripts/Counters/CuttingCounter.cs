@@ -1,7 +1,6 @@
 using UnityEngine;
 
-public class CuttingCounter : BaseCounter
-{
+public class CuttingCounter : BaseCounter {
     [SerializeField] private CuttingRecipeSO[] cuttingRecipeSOArray;
 
     private float cuttingTimer;
@@ -16,7 +15,7 @@ public class CuttingCounter : BaseCounter
                     return;
                 }
 
-                InvokeOnProgressChanged(new OnProgressChangedEventArgs {
+                InvokeOnProgressChanged(new IHasProgress.OnProgressChangedEventArgs {
                     progressNormalized = cuttingTimer / GetRecipe(GetKitchenObject().GetKitchenObjectSO()).cuttingTime
                 });
             }
@@ -37,7 +36,7 @@ public class CuttingCounter : BaseCounter
                 
                 cuttingTimer++;
                 InvokeOnCut();
-                InvokeOnProgressChanged(new OnProgressChangedEventArgs {
+                InvokeOnProgressChanged(new IHasProgress.OnProgressChangedEventArgs {
                     progressNormalized = cuttingTimer / GetRecipe(GetKitchenObject().GetKitchenObjectSO()).cuttingTime
                 });
                 if (cuttingTimer >= cuttingRecipeSO.cuttingTime) {

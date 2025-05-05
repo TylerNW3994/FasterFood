@@ -4,16 +4,22 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class ProgressBarUI : MonoBehaviour {
-    [SerializeField] private BaseCounter counter;
+    [SerializeField] private GameObject hasProgressGameObject;
     [SerializeField] private Image barImage;
 
+    private IHasProgress hasProgress;
+
     private void Start() {
-        counter.OnProgressChanged += BaseCounter_OnProgressChanged;
+        hasProgress = hasProgressGameObject.GetComponent<IHasProgress>();
+        if (hasProgress == null) {
+            Debug.LogError("Game Object "  + hasProgressGameObject + " does not implement IHasProgress");
+        }
+        hasProgress.OnProgressChanged += HasProgress_OnProgressChanged;
         barImage.fillAmount = 0f;
         Hide();
     }
     
-    private void BaseCounter_OnProgressChanged(object sender, BaseCounter.OnProgressChangedEventArgs e) {
+    private void HasProgress_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e) {
         barImage.fillAmount = e.progressNormalized;
         if (e.progressNormalized == 0f || e.progressNormalized == 1f) {
             Hide();

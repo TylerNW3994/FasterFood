@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StoveCounter : BaseCounter {
+public class StoveCounter : BaseCounter, IHasProgress {
     public event EventHandler<OnCookingStateChangedEventArgs> CookingStateChanged;
 
     public class OnCookingStateChangedEventArgs : EventArgs {
@@ -34,6 +34,10 @@ public class StoveCounter : BaseCounter {
                 case State.Cooking:
                     cookingTime += Time.deltaTime;
 
+                    InvokeOnProgressChanged(new IHasProgress.OnProgressChangedEventArgs {
+                        progressNormalized = cookingTime / cookingRecipeSO.cookingTime
+                    });
+
                     if (cookingTime > cookingRecipeSO.cookingTime) {
                         state = State.Cooked;
                     }
@@ -52,6 +56,9 @@ public class StoveCounter : BaseCounter {
                     });
                     break;
                 case State.Burned:
+                    InvokeOnProgressChanged(new IHasProgress.OnProgressChangedEventArgs {
+                        progressNormalized = 0f
+                    });
                     break;
             }
         }
@@ -62,52 +69,53 @@ public class StoveCounter : BaseCounter {
             if (player.HasKitchenObject()) {
                 cookingTime = 0f;
                 player.GetKitchenObject().SetKitchenObjectParent(this);
-                state = State.Cooking;
-                CookingStateChanged?.Invoke(this, new OnCookingStateChangedEventArgs {
-                    state = state
-                });
 
                 if (HasRecipe(GetKitchenObject().GetKitchenObjectSO()) == false) {
                     return;
                 }
-                
+
+                state = State.Cooking;
                 cookingRecipeSO = GetCookingRecipeSO(GetKitchenObject().GetKitchenObjectSO());
 
-                InvokeOnProgressChanged(new OnProgressChangedEventArgs {
+                InvokeOnProgressChanged(new IHasProgress.OnProgressChangedEventArgs {
                     progressNormalized = cookingTime / cookingRecipeSO.cookingTime
                 });
+                
             }
         } else {
             if (!player.HasKitchenObject()) {
                 state = State.Idle;
-                CookingStateChanged?.Invoke(this, new OnCookingStateChangedEventArgs {
-                    state = state
-                });
                 GetKitchenObject().SetKitchenObjectParent(player);
                 cookingRecipeSO = null;
+                InvokeOnProgressChanged(new IHasProgress.OnProgressChangedEventArgs {
+                    progressNormalized = 0f
+                });
             }
         }
+        CookingStateChanged?.Invoke(this, new OnCookingStateChangedEventArgs {
+            state = state
+        });
     }
 
     public override void Interact(Player player) {
-        if (HasKitchenObject()) {
-            if (!player.HasKitchenObject()) {
-                KitchenObjectSO output = GetRecipeOutput(GetKitchenObject().GetKitchenObjectSO());
-                if (output == null) return;
+        // if (HasKitchenObject()) {
+        //     if (!player.HasKitchenObject()) {
+        //         KitchenObjectSO output = GetRecipeOutput(GetKitchenObject().GetKitchenObjectSO());
+        //         if (output == null) return;
 
-                cookingRecipeSO = GetCookingRecipeSO(GetKitchenObject().GetKitchenObjectSO());
+        //         cookingRecipeSO = GetCookingRecipeSO(GetKitchenObject().GetKitchenObjectSO());
                 
-                cookingTime++;
-                InvokeOnCut();
-                InvokeOnProgressChanged(new OnProgressChangedEventArgs {
-                    progressNormalized = cookingTime / GetCookingRecipeSO(GetKitchenObject().GetKitchenObjectSO()).cookingTime
-                });
-                if (cookingTime >= cookingRecipeSO.cookingTime) {
-                    GetKitchenObject().DestroySelf();
-                    KitchenObject.SpawnKitchenObject(output, this);
-                }
-            }
-        }
+        //         cookingTime++;
+        //         InvokeOnCut();
+        //         InvokeOnProgressChanged(new OnProgressChangedEventArgs {
+        //             progressNormalized = cookingTime / GetCookingRecipeSO(GetKitchenObject().GetKitchenObjectSO()).cookingTime
+        //         });
+        //         if (cookingTime >= cookingRecipeSO.cookingTime) {
+        //             GetKitchenObject().DestroySelf();
+        //             KitchenObject.SpawnKitchenObject(output, this);
+        //         }
+        //     }
+        // }
     }
 
     private bool HasRecipe(KitchenObjectSO input) {

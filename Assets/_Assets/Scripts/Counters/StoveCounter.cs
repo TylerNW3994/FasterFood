@@ -90,6 +90,16 @@ public class StoveCounter : BaseCounter, IHasProgress {
                 InvokeOnProgressChanged(new IHasProgress.OnProgressChangedEventArgs {
                     progressNormalized = 0f
                 });
+            } else {
+                if (player.GetKitchenObject().TryGetHolder(out HolderKitchenObject holderKitchenObject)) {
+                    state = State.Idle;
+                    holderKitchenObject.AddIngredient(GetKitchenObject().GetKitchenObjectSO());
+                    GetKitchenObject().DestroySelf();
+                    
+                    InvokeOnProgressChanged(new IHasProgress.OnProgressChangedEventArgs {
+                        progressNormalized = 0f
+                    });
+                }
             }
         }
         CookingStateChanged?.Invoke(this, new OnCookingStateChangedEventArgs {

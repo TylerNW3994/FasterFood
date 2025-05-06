@@ -37,6 +37,15 @@ public class KitchenObject : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public bool TryGetHolder(out HolderKitchenObject holderKitchenObject) {
+        if (this is HolderKitchenObject) {
+            holderKitchenObject = this as HolderKitchenObject;
+            return true;
+        }
+        holderKitchenObject = null;
+        return false;
+    }
+
     public static KitchenObject SpawnKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent) {
         Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab);
         KitchenObject kitchenObject = kitchenObjectTransform.GetComponent<KitchenObject>();

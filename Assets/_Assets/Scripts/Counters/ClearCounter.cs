@@ -13,6 +13,11 @@ public class ClearCounter : BaseCounter {
         } else {
             if (!player.HasKitchenObject()) {
                 GetKitchenObject().SetKitchenObjectParent(player);
+            } else {
+                if (player.GetKitchenObject().TryGetHolder(out HolderKitchenObject holderKitchenObject)) {
+                    holderKitchenObject.AddIngredient(GetKitchenObject().GetKitchenObjectSO());
+                    GetKitchenObject().DestroySelf();
+                }
             }
         }
     }
